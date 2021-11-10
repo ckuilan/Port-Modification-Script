@@ -1,12 +1,8 @@
-from __future__ import print_function
 from netmiko import ConnectHandler
 
 import sys
-import time
-import select
 import paramiko
 fd = open(r'C:\Users\Chris\\PythonOutput.txt','w') 
-old_stdout = sys.stdout   
 sys.stdout = fd 
 platform = 'cisco_ios'
 username = 'admin'
@@ -52,5 +48,3 @@ for host in ip_add_file:
             print("Done!")
             
 fd.close()
-
-
