@@ -1,31 +1,36 @@
 from netmiko import ConnectHandler
 
+import re
 import sys
 import paramiko
-fd = open(r'C:\Users\Chris\\PythonOutput.txt','w') 
+fd = open(r'C:\Users\"insert User here"\\PythonOutput.txt','w') 
 sys.stdout = fd 
 platform = 'cisco_ios'
 username = 'admin'
 password = 'admin'
 
-ip_add_file = open(r'C:\Users\Chris\\IPAddressList.txt','r') 
+##Make this the directory of the IPlist.txt
+ip_add_file = open(r'C:\Users\"insert User here"\\IPAddressList.txt','r') 
 
 for host in ip_add_file:
     device = ConnectHandler(device_type=platform, ip=host, username=username, password=password)
     output = device.send_command('enable')
-    showIP = device.send_command("show ip int br | inc 172.16")
+    showIP = device.send_command("show int status | in 174 | 176")
     
     #collection of interfaces for modification
     interfaces = [];
     for line in showIP.splitlines():
         print ("\n############################")
         print ("Host " +host)
-        print(line)
-        if line[0:2] == 'Gi' or 'Gi':
-            interfaces.append(line[0:16].strip())
+        xx = line
+        r1 = re.match(r"^Fa.*\/[0-9]|Gi.*\/[0-9]|Gigabitethernet.*\/[0-9]", str(xx))
+        print(xx)
+        print('Matched Interface ' +r1.group())
+        if "174" or "176" in line: 
+            interfaces.append(r1.group())
+         
             
     #showing interfaces collected
-
     print("\nFound these interfaces:")
     print(interfaces)
     
@@ -39,10 +44,10 @@ for host in ip_add_file:
             print("\n" +intf)
             print("Modifying now ....Please Wait ")
             
-            # issue commands
+            # issue commands to te interface that has been matched
             config_commands = [
             'int '+intf,
-            'desc PythonGuruFinal',
+            'switchport access vlan 178',
             'no shut']
             device.send_config_set(config_commands)
             print("Done!")
